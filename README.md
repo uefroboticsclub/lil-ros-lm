@@ -6,7 +6,7 @@
 - pip3 install -r requirements.txt
 
 - rm -rf build/ install/
-- colcon build --packages-select roslm
+- colcon build --packages-select rosgpt
 - source install/setup.bash
 OR
 - echo "source install/setup.bash" >> ~/.bashrc
@@ -26,7 +26,7 @@ turtlesim has one: turtlesim_node.
 * Run the ROSGPT Flask server
 
 ```sh
-ros run rosgpt rosgpt
+ros2 run rosgpt rosgpt
 ```
 
 * Run the turtlesim node

@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# This file is part of rosgpt package.
-
 import os
 import json
 import openai

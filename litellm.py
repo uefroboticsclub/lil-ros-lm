@@ -1,9 +1,7 @@
-# not complete, need to add returnValue to ros.
-
 from litellm import completion
 
 response = completion(
-    model="ollama/phi3:latest", # or any local llm you have.
+    model="ollama/phi3:latest",
     prompt = '''Consider the following ontology:
                     {"action": "go_to_goal", "params": {"location": {"type": "str", "value": location}}}
                     {"action": "move", "params": {"linear_speed": linear_speed, "distance": distance, "is_forward": is_forward}}

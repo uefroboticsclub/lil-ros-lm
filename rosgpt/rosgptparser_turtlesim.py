@@ -1,7 +1,3 @@
-#!/usr/bin/env python3
-# This file is part of rosgpt package.
-
-
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
@@ -46,14 +42,12 @@ class TurtlesimController(Node):
         self.y  = msg.y
         self.theta  = msg.theta
         self.pose = msg
-        #print (self.x) #used for debegging
     
     #this callback represents the ROSGPTParser. It takes a JSON, parses it, and converts it to a ROS 2 command
     def voice_cmd_callback(self, msg):
-        #print(msg.data)
         try:
             cmd = json.loads(msg.data)
-            cmd = json.loads(cmd['json']) #we only consider the pure json message. cmd['text'] contains a mix of text and json
+            cmd = json.loads(cmd['json'])
             print('JSON command received: \n',cmd,'\n')
             if cmd['action'] == 'go_to_goal':
                 location = cmd['params']['location']['value']
@@ -77,7 +71,6 @@ class TurtlesimController(Node):
                 angle = cmd['params'].get('angle', 90.0)
                 is_clockwise = cmd['params'].get('is_clockwise', True)
                 self.thread_executor.submit(self.rotate, angular_velocity, angle, is_clockwise)
-                #self.rotate(angular_velocity, angle, is_clockwise)
         except json.JSONDecodeError:
             print('[json.JSONDecodeError] Invalid or empty JSON string received:', msg.data)
         except Exception as e:
@@ -85,7 +78,6 @@ class TurtlesimController(Node):
 
     def go_to_goal(self, location):
         # TODO: Implement go_to_goal method
-        # wil be defined later
         pass
 
     async def move_coro(self, linear_speed, distance, is_forward):
@@ -111,11 +103,8 @@ class TurtlesimController(Node):
 
         start_pose = copy.copy(self.pose)
 
-        #self.move_executor.add_node(self)#
 
         while self.get_distance(start_pose, self.pose) < distance:
-            #print('start_pose', start_pose, 'self.pose', self.pose, 'moved_distance: ', self.get_distance(start_pose, self.pose))
-            #print('self.get_distance (start_pose, self.pose)<distance: ', self.get_distance(start_pose, self.pose) < distance)
             print('distance moved: ', self.get_distance(start_pose, self.pose))
             self.velocity_publisher.publish(twist_msg)
             self.move_executor.spin_once(timeout_sec=0.1)
@@ -124,12 +113,6 @@ class TurtlesimController(Node):
         self.velocity_publisher.publish(twist_msg)
         print('distance moved: ', self.get_distance(start_pose, self.pose))
         print('The Robot has stopped...')
-
-        #self.move_executor.remove_node(self)
-
-
-        #return 0
-
 
 
     def rotate (self, angular_speed_degree, desired_relative_angle_degree, clockwise):

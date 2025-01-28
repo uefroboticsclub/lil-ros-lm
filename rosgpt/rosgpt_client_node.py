@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# This file is part of rosgpt package.
-
 import json
 import rclpy
 from rclpy.node import Node
@@ -17,7 +14,7 @@ class ROSGPTClient(Node):
 
         self.send_text_command()
 
-    def send_text_command(self): #把输入发送给 ROSGPT 系统，然后从LLM 获得响应。
+    def send_text_command(self):
         while rclpy.ok():
             print('Enter a move command or a rotate command. The current ROSGPTParser of rosgpt_turtlesim does not multiple command. Will be extended later')
             text_command = input("Enter a text command: ")
