@@ -43,12 +43,20 @@ class TurtlesimController(Node):
         self.theta  = msg.theta
         self.pose = msg
     
-    #this callback represents the ROSGPTParser. It takes a JSON, parses it, and converts it to a ROS 2 command
     def voice_cmd_callback(self, msg):
         try:
-            cmd = json.loads(msg.data)
-            cmd = json.loads(cmd['json'])
-            print('JSON command received: \n',cmd,'\n')
+            # Step 1: Parse the outer JSON
+            outer_json = json.loads(msg.data)
+            
+            # Step 2: Extract the inner JSON string from the 'json' field
+            inner_json_str = outer_json['json']
+            
+            # Step 3: Parse the inner JSON string into a Python dictionary
+            cmd = json.loads(inner_json_str)
+            
+            print('JSON command received: \n', cmd, '\n')
+            
+            # Step 4: Process the command as before
             if cmd['action'] == 'go_to_goal':
                 location = cmd['params']['location']['value']
                 self.go_to_goal(location)
@@ -56,25 +64,19 @@ class TurtlesimController(Node):
                 linear_speed = cmd['params'].get('linear_speed', 0.2)
                 distance = cmd['params'].get('distance', 1.0)
                 is_forward = cmd['params'].get('is_forward', True)
-
-                #METHOD 1: running an async method as a new task. But method 2 is more straightforward
-                #self.move_executor.create_task(self.move_coro(linear_speed, distance, is_forward))
-                
-                #METHOD 2. create a thread executor
-                #we need to run the method on a different thread to avoid blocking rclpy.spin. 
                 self.thread_executor.submit(self.move, linear_speed, distance, is_forward)
-
-                #running move on the main thread will generate to error, as it will block rclpy.spin
-                #self.move(linear_speed, distance, is_forward)
             elif cmd['action'] == 'rotate':
                 angular_velocity = cmd['params'].get('angular_velocity', 1.0)
                 angle = cmd['params'].get('angle', 90.0)
                 is_clockwise = cmd['params'].get('is_clockwise', True)
                 self.thread_executor.submit(self.rotate, angular_velocity, angle, is_clockwise)
-        except json.JSONDecodeError:
-            print('[json.JSONDecodeError] Invalid or empty JSON string received:', msg.data)
+        except json.JSONDecodeError as e:
+            print('[json.JSONDecodeError] Invalid JSON string received:', msg.data)
+            print('Error details:', str(e))
+        except KeyError as e:
+            print(f'[KeyError] Missing key in JSON: {e}')
         except Exception as e:
-            print('[Exception] An unexpected error occurred:', str(e))   
+            print('[Exception] An unexpected error occurred:', str(e))
 
     def go_to_goal(self, location):
         # TODO: Implement go_to_goal method

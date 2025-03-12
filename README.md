@@ -38,7 +38,7 @@ ros2 run turtlesim turtlesim_node
 * Run rosgptparser_turtlesim.py
 
 ```sh
- ros2 run rosgpt rosgptparser_turtlesim
+ros2 run rosgpt rosgptparser_turtlesim
 ```
 
 4. Run rosgpt_client_node.py

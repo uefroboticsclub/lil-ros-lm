@@ -1,6 +1,10 @@
+#!/usr/bin/env python3
+# This file is part of rosgpt package.
+
 import os
 import json
-import openai
+# import openai
+from groq import Groq
 import rclpy
 import threading
 from rclpy.node import Node
@@ -25,8 +29,11 @@ api = Api(app)
 #You must add OPENAI_API_KEY as an environment variable
 #In Ubuntu: echo 'export OPENAI_API_KEY=your_api_key' >> ~/.bashrc
 # Get the API key from the environment variable. 
-openai_api_key = os.getenv('OPENAI_API_KEY')
+# openai_api_key = os.getenv('OPENAI_API_KEY')
 #print(openai_api_key)
+
+# groq_api_key = os.getenv('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')  # Changed environment variable
+client = Groq(api_key='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')
 
 
 
@@ -126,7 +133,7 @@ class ROSGPTProxy(Resource):
                     
                     '''
         prompt = prompt+'\nprompt: '+text_command
-        #print(prompt) #for testing
+        # print(prompt) #for testing
         
 
         # Create the message structure for the LLM
@@ -136,21 +143,31 @@ class ROSGPTProxy(Resource):
         ]
 
         # Try to send the request to the LLM and handle any exceptions
+        # try:
+        #     response = openai.ChatCompletion.create(
+        #         model="gpt-3.5-turbo",
+        #         messages=messages,
+        #     )
+        # except openai.error.InvalidRequestError as e:
+        #     print(f"Error: {e}")
+        #     return None
+        # except Exception as e:
+        #     print(f"Unexpected error: {e}")
+        #     return None
         try:
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
+            response = client.chat.completions.create(
+                model="mixtral-8x7b-32768",  # Choose Groq supported model
                 messages=messages,
+                temperature=0.3,
+                max_tokens=1024
             )
-        except openai.error.InvalidRequestError as e:
+        except Exception as e:  # Simplified error handling
             print(f"Error: {e}")
-            return None
-        except Exception as e:
-            print(f"Unexpected error: {e}")
             return None
         
         # Extract the LLM response from the returned JSON
-        chatgpt_response = response.choices[0].message['content'].strip()
-        #print(chatgpt_response)
+        chatgpt_response = response.choices[0].message.content.strip()
+        # print(chatgpt_response)
         # Find the start and end indices of the JSON string in the response
         start_index = chatgpt_response.find('{')
         end_index = chatgpt_response.rfind('}') + 1
